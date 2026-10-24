@@ -12,12 +12,12 @@ Every `SESSION START` and per-turn entry in `log.txt` must use `tool=Claude Code
 
 ## Current state
 
-`code/ARCHITECTURE.md` is the design source of truth: an 8-stage pipeline (ingest → intent → identity → discovery → state at `audit_at` → policy → planner → emit), data findings from the 32 samples, the proposed code layout, the evaluation plan, and the milestone roadmap. Read it before writing solution code. `code/main.py` and `code/evaluation/main.py` are still empty. `dataset/output.csv` is a blank template; the generated `output.csv` goes at the repo root.
+`code/ARCHITECTURE.md` is the design source of truth: an 8-stage pipeline (ingest → intent → identity → discovery → state at `audit_at` → policy → planner → emit), data findings from the 32 samples, the proposed code layout, the evaluation plan, and the milestone roadmap. Read it before writing solution code. Milestone 0 (contract skeleton) is done: `code/audit/contract.py` (operation tables, ordering, serialization), `dataset.py` (paths, loaders), `emit.py` (writer + contract validator). `audit_case` in `code/main.py` is still a placeholder that returns COMPLETE with no steps. `code/evaluation/main.py` is empty. `dataset/output.csv` is a blank template; the generated `output.csv` goes at the repo root.
 
 ## Commands (Windows environment)
 
 - Use `python`, not `python3` (`python3` resolves to the Microsoft Store stub here). Python 3.13 is installed, with a virtualenv at the repo root: `.venv\Scripts\python.exe` (or activate it with `.venv\Scripts\Activate.ps1`). Keep `.venv` at the root, outside `code/`, so it stays out of `code.zip`.
-- Run the solution: `python code/main.py` (writes `./output.csv`).
+- Run the solution: `python code/main.py` (writes `./output.csv` and validates it; exit code 1 on any contract violation). `--sample` runs the 32 sample requests into `./sample_predictions.csv`. `--validate FILE` only validates, e.g. `python code/main.py --sample --validate dataset/sample_output.csv` (the gold answers must stay valid).
 - There is no `sqlite3` CLI. Load `dataset/evidence/databases/*.sql` with Python's `sqlite3` module (`conn.executescript(open(path).read())` into an in-memory DB).
 - Package: `Compress-Archive -Path README.md, code -DestinationPath code.zip -Force` (PowerShell). `Compress-Archive` cannot exclude anything, so first remove every `__pycache__` under `code/` and make sure `code/` holds no `.zip/.tar/.gz/.tgz/.7z/.rar` files: a nested archive gets the submission rejected. Never include `dataset/`.
 
