@@ -1,0 +1,22 @@
+{
+  "source_file": "evidence/images/support_ticket_console_20260524.png",
+  "extractor": {
+    "provider": "anthropic",
+    "model": "claude-opus-5-5",
+    "method": "one-time vision transcription during development (Claude Code session); regenerate with code/extract_media.py"
+  },
+  "text": "Helpline Console / Inbox. CS-5034 Where is my delivery? support_1034 - Kofi Agyeman - normal priority. Customer Kofi Agyeman, email kagyeman8947@fastmail.com, assigned Maya Chen, tags delivery, tracking, order update. Conversation: 09:12 Kofi Agyeman: Could you let me know where my order is and when it is expected to arrive?; 09:13 Northstar Bot: We received your message and are checking the order details.; 09:28 Maya Chen: The parcel reached the regional hub and is on track for delivery on 26 May.; 09:35 Kofi Agyeman: Thanks for the update. Order ORD-20265034 running shoes, in transit, carrier SwiftShip, tracking SWF-884103, expected 26 May 2026, assigned agent Maya Chen.",
+  "records": [
+    {
+      "resource_ref": "support_1034",
+      "system_id": "support_platform",
+      "fields": {
+        "ticket_id": "CS-5034",
+        "requester_name": "Kofi Agyeman",
+        "requester_email": "kagyeman8947@fastmail.com",
+        "assigned_agent": "Maya Chen",
+        "order_reference": "ORD-20265034"
+      }
+    }
+  ]
+}

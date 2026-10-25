@@ -87,6 +87,24 @@ def extract_identifiers(fields: dict, text: str | None = None) -> frozenset[tupl
 _ABSENT_RESULTS = {"NOT_FOUND", "MISS", "ABSENT", "DELETED"}
 
 
+def flatten_fields(record: dict) -> dict:
+    """Merge nested objects (`document`, `profile`, `metrics`) into one level.
+
+    A nested key that collides with an existing one is kept as `parent.key`.
+    """
+    fields: dict = {}
+
+    def merge(d: dict, prefix: str) -> None:
+        for key, value in d.items():
+            if isinstance(value, dict):
+                merge(value, f"{key}.")
+            else:
+                fields[f"{prefix}{key}" if key in fields else key] = value
+
+    merge(record, "")
+    return fields
+
+
 def presence(fields: dict) -> bool | None:
     """Whether a record says the resource exists: True, False, or None if it does not say."""
     status = fields.get("status_code", fields.get("http_status"))

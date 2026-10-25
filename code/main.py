@@ -5,23 +5,30 @@
     python code/main.py --sample            # run on the 32 sample requests
     python code/main.py --debug-resource account_5684 [--before 2026-09-10T00:00:00Z]
     python code/main.py --debug-identifier someone@example.com
+    python code/main.py --explain case_12   # intent, identity, linked resources, states, steps
 
-The pipeline is still a placeholder (every case COMPLETE with no steps); the
-output is validated against the contract. The --debug-* flags dump what the
-evidence store holds for a resource or identifier.
+Runs the full audit pipeline (intent -> identity -> discovery -> state at
+audit_at -> policy -> planner, see code/ARCHITECTURE.md) and validates the
+output against the contract, exiting 1 on any violation. The run is
+deterministic and makes no model calls unless a request text is ambiguous and
+an API key is configured; model usage is printed at the end. --explain shows
+how a case was decided; the --debug-* flags dump what the evidence store holds
+for a resource or identifier.
 """
 
 from __future__ import annotations
 
 import argparse
+import json
 import sys
 from pathlib import Path
 
+from audit import llm
 from audit.dataset import OUTPUT_CSV, REQUESTS_CSV, SAMPLE_REQUESTS_CSV, load_citable_ids, load_requests, parse_time
 from audit.emit import validate_output, write_output
 from audit.ingest import build_store
 from audit.observations import EMAIL, EMAIL_HASH, EMAIL_RE, HASH_RE, PHONE, USER, USER_RE, item_time
-from audit.pipeline import audit_case
+from audit.pipeline import audit_requests, run_audits
 
 
 def describe_item(item) -> str:
@@ -63,6 +70,28 @@ def debug(resources: list[str], identifiers: list[str], before: str | None) -> N
             print("  " + describe_item(item))
 
 
+def explain(case_ids: list[str]) -> None:
+    requests = {r.case_id: r for r in load_requests(REQUESTS_CSV) + load_requests(SAMPLE_REQUESTS_CSV)}
+    unknown = [c for c in case_ids if c not in requests]
+    if unknown:
+        raise SystemExit(f"unknown case id(s): {', '.join(unknown)}")
+    for audit in run_audits([requests[c] for c in case_ids]):
+        r, cr = audit.request, audit.resources
+        print(f"== {r.case_id}  reported {r.reported_status} at {r.reported_at:%Y-%m-%dT%H:%MZ}, audit_at {r.audit_at:%Y-%m-%dT%H:%MZ}")
+        print(f"  intent: {'deletion' if audit.intent.authorized else 'NOT_APPLICABLE'} ({audit.intent.reason})")
+        if cr:
+            ident = cr.identity
+            print(f"  identity: {ident.user_id}, {len(ident.identifiers)} identifiers ({len(ident.historical)} historical)")
+            print(f"  account: {cr.account_id} via {cr.account_activity.activity_id if cr.account_activity else '-'}")
+            for note in cr.notes:
+                print(f"  note: {note}")
+            for line in audit.plan.explanation:
+                print(f"  {line}")
+        print(f"  => {audit.plan.result.deletion_status}")
+        for s in audit.plan.result.steps:
+            print(f"     {s['step_no']:2} {s['phase']:12} {s['operation']:26} {s['system_id']}/{s['resource_id']} {s['evidence_id']}")
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--requests", type=Path, help=f"request CSV (default: {REQUESTS_CSV.name})")
@@ -72,9 +101,13 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--debug-resource", action="append", default=[], metavar="RESOURCE_ID")
     parser.add_argument("--debug-identifier", action="append", default=[], metavar="VALUE")
     parser.add_argument("--before", metavar="TIMESTAMP", help="with --debug-*: hide evidence captured after this time")
+    parser.add_argument("--explain", action="append", default=[], metavar="CASE_ID", help="show how a case was decided")
     args = parser.parse_args(argv)
     sys.stdout.reconfigure(encoding="utf-8")
 
+    if args.explain:
+        explain(args.explain)
+        return 0
     if args.debug_resource or args.debug_identifier:
         debug(args.debug_resource, args.debug_identifier, args.before)
         return 0
@@ -86,8 +119,11 @@ def main(argv: list[str] | None = None) -> int:
         output_path = args.validate
     else:
         output_path = args.output or (OUTPUT_CSV.with_name("sample_predictions.csv") if args.sample else OUTPUT_CSV)
-        write_output([audit_case(r) for r in requests], output_path)
+        write_output(audit_requests(requests), output_path)
         print(f"wrote {len(requests)} rows to {output_path}")
+        usage = llm.USAGE.summary()
+        calls = sum(m["calls"] for m in usage["models"].values())
+        print(f"model calls this run: {calls} (cache hits {usage['cache_hits']}) {json.dumps(usage['models'])}")
 
     errors = validate_output(output_path, requests, load_citable_ids())
     for error in errors:

@@ -16,7 +16,7 @@ import re
 import sqlite3
 
 from ..dataset import DATASET_DIR, parse_time
-from ..observations import Coverage, EvidenceFile, Observation, extract_identifiers, system_for
+from ..observations import Coverage, EvidenceFile, Observation, extract_identifiers, flatten_fields, system_for
 
 # Typed tables that do not say which system owns them.
 TABLE_SYSTEMS = {
@@ -68,12 +68,13 @@ def ingest_sql(evidence: EvidenceFile) -> tuple[list[Observation], list[Coverage
         for row in conn.execute(f'SELECT * FROM "{table}"'):
             fields = dict(row)
             if "record_json" in fields:
-                fields = {**json.loads(fields.pop("record_json")), **fields}
+                fields = flatten_fields({**json.loads(fields.pop("record_json")), **fields})
             resource_id = fields["resource_id"]
             stated = fields.get("origin_system") or TABLE_SYSTEMS.get(base)
             system_id = system_for(resource_id, stated)
             systems_in_file.add(system_id)
-            observed = fields.get("updated_at") or fields.get("indexed_at") or scope.get(system_id)
+            # A snapshot row exists at capture time; updated_at is only its last change.
+            observed = scope.get(system_id)
             observations.append(
                 Observation(
                     evidence_id=evidence.evidence_id,

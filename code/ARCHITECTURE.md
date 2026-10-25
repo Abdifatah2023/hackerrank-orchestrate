@@ -1,6 +1,6 @@
 # Deletion-Audit Agent: Architecture & Roadmap
 
-Status: design only, no code yet. Every claim below comes from inspecting the participant-facing files in `dataset/` and the 32 public sample answers. Organizer-only data was not used.
+Status: all milestones (0-10) implemented; §8 records where the build departed from the original design. Every claim below comes from inspecting the participant-facing files in `dataset/` and the 32 public sample answers. Organizer-only data was not used.
 
 ---
 
@@ -296,3 +296,20 @@ Order rationale: the scorer exists before any logic, so every later milestone is
 - **Support message vs attachment, analytics anonymize vs secondary-identifier delete.** These depend on record shape and message content. Mine the samples for the distinguishing fields. Use an LLM tie-break only if rules are ambiguous.
 - **Stale vs fresh.** A violation seen in an older file but contradicted by a newer pre-audit file is not a finding. Latest wins, unless the newer file is a different copy (replica).
 - **No NOT_APPLICABLE samples.** Intent accuracy cannot be measured on labelled data, so rely on custom cases and manual review of flagged texts.
+
+---
+
+## 8. As built: departures from the design
+
+Measured effects are in `code/evaluation/evaluation_report.md`.
+
+- **Coverage (absence proofs).** Snapshots record which tables / collections and copies they captured (§3.1). A record is verified ABSENT by a snapshot taken after `reported_at` that left it out, preferring a file the case already cites.
+- **Readings must follow the workflow report.** Evidence observed before `reported_at` only shows the expected pre-deletion state, so it is ignored for state and proofs (every gold citation is captured after `reported_at`). SQL rows are timed by their snapshot, not by `updated_at`.
+- **Linking uses all evidence; state uses evidence up to `audit_at`.** Ownership does not change over time, so later files may link a resource to its owner (gold answers verify audit records seen only in later files). State and citations use only evidence captured by `audit_at`.
+- **Account = the request's own burst delete.** The verified account is the one the deletion worker submitted 0-1.5 h before `reported_at`, with a result mirroring `reported_status`. Matching runs in four passes: the subject's own account, then grouped by burst and status in case-number order, then a ±15 min delete of any result, then the subject's latest own account when there is no burst. Older accounts that are already deleted are ignored.
+- **Anonymized records** are assigned after state is known, to burst cases that have no analytics record or tombstone of their own and either nothing left to fix or policy actions that ran on their resources, in case-number order. Account-delete order mismatched the samples.
+- **Violation is a policy outcome**, not a raw reading: a present retained record is compliant.
+- **Categories refined by evidence:** a support resource in an uploaded document is a `SUPPORT_ATTACHMENT` (DELETE); a legacy contact-index replica copy and a hash-keyed analytics contact lookup are `SECONDARY_IDENTIFIER` (DELETE).
+- **Screenshots**: transcribed once into `code/cache/extractions/` as text plus per-record fields (`code/extract_media.py`). Records link only through their own fields, and business aliases (file names, statement numbers, customer keys) resolve through `LINK_RESOURCE_IDENTITY` catalog events. A PDF that names several people links nothing.
+- **Intent**: rules only in the final run (exactly the 10 non-deletion texts). The model fallback exists but was never needed.
+- **No assignment solver**: burst groups were small enough for ordered matching; residual ambiguity is listed in each case's notes (`python code/main.py --explain`).
