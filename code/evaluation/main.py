@@ -8,7 +8,7 @@
     python code/evaluation/main.py --ingest-coverage  # can the evidence store reach every gold resource and citation?
     python code/evaluation/main.py --custom           # hand-built variant cases (custom_cases.py)
 
-Metrics (all micro-averaged over gold steps unless noted):
+Metrics (step metrics micro-averaged over gold steps; the rest are shares of cases):
   status accuracy   cases whose deletion_status matches
   step P/R/F1       exact (phase, operation, system_id, resource_id, state, evidence_id) multiset match
   field accuracy    per field, on gold steps aligned to a predicted step; unaligned gold steps count as wrong
@@ -24,14 +24,12 @@ import csv
 import json
 import sys
 from collections import Counter
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from audit.contract import STEP_FIELDS, case_sort_key  # noqa: E402
-from dataclasses import replace  # noqa: E402
-
 from audit.dataset import SAMPLE_OUTPUT_CSV, SAMPLE_REQUESTS_CSV, load_requests, parse_time  # noqa: E402
 from audit.ingest import build_store  # noqa: E402
 from audit.pipeline import audit_requests, run_audits  # noqa: E402

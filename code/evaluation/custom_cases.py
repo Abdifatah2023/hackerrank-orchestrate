@@ -8,6 +8,7 @@ bursts shared with other cases are assigned exactly as in the real data.
 expect:
   "gold"                     the base case's answer in sample_output.csv still holds
   {"status": ..., "steps": [...]}  an explicit expected answer
+  None                       no expected answer; only the checks apply
 checks (optional), properties every answer must satisfy:
   "no_late_evidence"         no step cites evidence captured after audit_at
   ("never_cites", ids)       none of these evidence ids is cited

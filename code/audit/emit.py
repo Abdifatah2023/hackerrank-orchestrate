@@ -10,6 +10,7 @@ from pathlib import Path
 
 from .contract import (
     COMPLETE,
+    FINDING,
     INCOMPLETE,
     NOT_APPLICABLE,
     OPERATION_PHASE,
@@ -137,9 +138,9 @@ def _validate_case(
             errors.append(f"{where}: a COMPLETE case may only contain VERIFICATION steps")
         elif status == COMPLETE and not evidence_id:
             errors.append(f"{where}: COMPLETE verification must cite evidence")
-        elif status == INCOMPLETE and phase != "FINDING" and evidence_id:
+        elif status == INCOMPLETE and phase != FINDING and evidence_id:
             errors.append(f"{where}: INCOMPLETE {phase.lower()} steps must use evidence_id=\"\"")
-        elif status == INCOMPLETE and phase == "FINDING" and not evidence_id:
+        elif status == INCOMPLETE and phase == FINDING and not evidence_id:
             errors.append(f"{where}: findings must cite evidence")
         elif evidence_id and citable_ids is not None:
             captured = citable_ids.get(evidence_id)
@@ -148,6 +149,6 @@ def _validate_case(
             elif audit_at is not None and captured > audit_at:
                 errors.append(f"{where}: {evidence_id} is dated after audit_at")
 
-    if status == INCOMPLETE and not any(s.get("phase") == "FINDING" for s in steps if isinstance(s, dict)):
+    if status == INCOMPLETE and not any(s.get("phase") == FINDING for s in steps if isinstance(s, dict)):
         errors.append("INCOMPLETE case has no FINDING step")
     return errors

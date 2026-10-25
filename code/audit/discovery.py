@@ -221,8 +221,9 @@ def assign_anonymized(
     """Hand each burst's anonymized records to its eligible cases, in case-number order.
 
     An anonymized record carries no identifier, so only its burst links it to
-    a case. The pipeline decides eligibility (the case has no analytics record
-    of its own and its policy actions ran); when a burst has more eligible cases
+    a case. The pipeline decides eligibility (the case has no analytics record or
+    tombstone of its own, and either nothing left to fix or policy actions that
+    ran on its resources); when a burst has more eligible cases
     than records the earliest cases are served and the ambiguity is noted.
     """
     owners = resource_owners(store)

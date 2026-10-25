@@ -103,9 +103,9 @@ Parsers: `sql` (load each file into in-memory `sqlite3`, handling both the typed
 
 **Coverage (absence proofs).** Samples prove a record ABSENT by citing a snapshot that captured its table and does not list it: `case_01` cites the failover-replica SQL (`evidence_54`) for `account_001`, and `case_31` cites a bundle snapshot whose `customer_profiles` collection has `"records": []` (`evidence_51`). So ingest also emits `Coverage(evidence_id, captured_at, observed_at, system_id, source, copy, resource_ids)` for every SQL table (inventory tables limited to the systems in `snapshot_scope`) and every JSON container that names a `collection` and lists its `records`.
 
-**Implemented (milestone 2):** `code/audit/observations.py` (model, identifier extraction, presence signal, `EvidenceStore` with resource / identifier indexes and `audit_at` cutoff) and `code/audit/ingest/` (`sql`, `records` for JSON + handover text, `logs` for all six log layouts, `documents` for PDF + cached screenshot text, `activity`). Every evidence file except the 11 screenshots is parsed.
+**Implemented (milestone 2):** `code/audit/observations.py` (model, identifier extraction, presence signal, `EvidenceStore` with resource / identifier indexes and `audit_at` cutoff) and `code/audit/ingest/` (`sql`, `records` for JSON + handover text, `logs` for all six log layouts, `documents` for PDF + cached screenshot text, `activity`). At milestone 2 every evidence file except the 11 screenshots was parsed; the screenshots followed in milestone 8 through the extraction cache (§8).
 
-`system_activity.csv` is ingested separately as `Event` rows. Events are **claims**. They are used for linkage (§3.4) and for recreation risk (`SYNC_RECORD` after a delete, `RESTORE_BACKUP`, `CHECK_DATA_FLOW` / `CHECK_RESTORE_ACCESS`). They never serve as proof of a final state.
+`system_activity.csv` is ingested separately as `Activity` rows. Events are **claims**. They are used for linkage (§3.4) and for recreation risk (`SYNC_RECORD` after a delete, `RESTORE_BACKUP`, `CHECK_DATA_FLOW` / `CHECK_RESTORE_ACCESS`). They never serve as proof of a final state.
 
 ### 3.2 Intent classifier → NOT_APPLICABLE
 
@@ -196,7 +196,7 @@ Write `output.csv` with exactly 518 rows sorted by `case_id`, valid JSON arrays,
 | Ambiguous intent | `claude-haiku-5-5` | only Stage-A misses, batched | keyed by text hash |
 | Optional tie-break (category or linkage) | `claude-sonnet-5-5` | only flagged cases | keyed by case + inputs hash |
 
-Temperature 0, JSON-schema outputs, and a token/cost counter feed `evaluation/usage_report.md`. The API key comes from the `ANTHROPIC_API_KEY` env var. With a warm cache, the pipeline runs fully offline and deterministically.
+Temperature 0, JSON-schema outputs, and a token/cost counter feed `code/evaluation/usage_report.md`. The API key comes from the `ANTHROPIC_API_KEY` env var. With a warm cache, the pipeline runs fully offline and deterministically.
 
 ### 3.10 Proposed code layout
 
@@ -313,3 +313,7 @@ Measured effects are in `code/evaluation/evaluation_report.md`.
 - **Screenshots**: transcribed once into `code/cache/extractions/` as text plus per-record fields (`code/extract_media.py`). Records link only through their own fields, and business aliases (file names, statement numbers, customer keys) resolve through `LINK_RESOURCE_IDENTITY` catalog events. A PDF that names several people links nothing.
 - **Intent**: rules only in the final run (exactly the 10 non-deletion texts). The model fallback exists but was never needed.
 - **No assignment solver**: burst groups were small enough for ordered matching; residual ambiguity is listed in each case's notes (`python code/main.py --explain`).
+- **Identity has no validity intervals** (§3.3): every current and historical identifier is used for linkage at any time, consistent with linking on all evidence.
+- **`CLASSIFY_REQUEST` is not read at runtime** (§3.2): it only corroborated the count of non-deletion texts during review.
+- **LLM jobs** (§3.9): two, both on `claude-opus-5-5` through `code/audit/llm.py` with a JSON-schema output format at `low` effort and the server-side refusal fallback: screenshot transcription and the intent fallback. PDFs need no model (pypdf), there is no tie-break job, and no `temperature` is sent (the model rejects sampling parameters). Results are cached under `code/cache/<task>/` by input hash.
+- **Code layout** (§3.10): `code/audit/ingest/` holds `sql`, `records` (JSON + handover text), `logs`, `documents` (PDF + screenshots), and `activity`; `contract.py`, `dataset.py`, and `pipeline.py` sit beside the stage modules; custom cases are one file, `code/evaluation/custom_cases.py`. `code/main.py` takes `--sample`, `--validate`, `--explain`, and `--debug-*` (see the README) instead of the proposed `--cases` / `--no-llm` / `--debug`.

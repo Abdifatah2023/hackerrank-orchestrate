@@ -22,7 +22,7 @@ No API key is needed. Optional: `pip install anthropic` and set `ANTHROPIC_API_K
 python code/main.py
 ```
 
-This reads `dataset/`, writes `output.csv` (518 rows, `case_id,deletion_status,steps_json`) at the repository root, validates it against the output contract, and exits non-zero on any violation. A full run takes about 1-2 seconds and makes no model calls.
+This reads `dataset/`, writes `output.csv` (518 rows, `case_id,deletion_status,steps_json`) at the repository root, validates it against the output contract, and exits non-zero on any violation. A full run takes about 2 seconds and makes no model calls unless a model is configured and a request text is ambiguous (none is in this dataset).
 
 Other entry points:
 
@@ -58,6 +58,15 @@ Reported statuses and activity results are treated as claims and never as proof 
 
 On the 32 labelled samples: 100% status accuracy, 98.7% step F1, and 87.5% of cases exactly right (28/32). 6/6 hand-built custom cases pass. Details, metric definitions, failures found and limitations: [`code/evaluation/evaluation_report.md`](./code/evaluation/evaluation_report.md). Model usage for the final run: [`code/evaluation/usage_report.md`](./code/evaluation/usage_report.md).
 
+## Audit report viewer (optional)
+
+`app/streamlit_app.py` is a read-only Streamlit page over the generated `output.csv` and `dataset/`: per-case status, timestamps, an activity timeline, steps by phase with their cited evidence files, and an overview of all cases. PII is masked by default. It does not import the pipeline and is not part of `code.zip`.
+
+```powershell
+pip install -r app/requirements.txt   # streamlit, pandas, plotly
+streamlit run app/streamlit_app.py
+```
+
 ## Repository layout
 
 ```text
@@ -68,6 +77,7 @@ code/
   cache/extractions/       cached screenshot transcriptions (input to ingestion)
   evaluation/              scorer, custom cases, evaluation_report.md, usage_report.md
   ARCHITECTURE.md          design, data findings, roadmap
+app/                       optional Streamlit audit report viewer (not shipped in code.zip)
 dataset/                   participant data (not shipped in code.zip)
 output.csv                 generated predictions
 ```

@@ -7,7 +7,7 @@ that genuine deletion requests may say what can be *kept* ("You can keep
 anonymous statistics", "Security records can stay"), so keep-signals are
 phrased around the account itself.
 
-`classify` returns (authorized, reason). Texts that match neither side are
+`classify` returns an `Intent(authorized, reason, certain)`. Texts that match neither side are
 treated as deletion requests when they mention the account at all, and are
 flagged as uncertain so they can be reviewed (or sent to a model, see
 `code/audit/llm.py`).

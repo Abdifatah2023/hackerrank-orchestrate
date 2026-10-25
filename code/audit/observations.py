@@ -42,7 +42,7 @@ PHONE_RE = re.compile(r"\+\d[\d\s().-]{6,}\d")
 
 NAME_FIELDS = {"full_name", "display_name", "requester_name", "name", "customer_name"}
 
-# Identifier kinds, in the order identity resolution will use them.
+# Identifier kinds; identifiers are (kind, normalized value) pairs.
 EMAIL, EMAIL_HASH, PHONE, NAME, USER = "email", "email_hash", "phone", "name", "user"
 
 
