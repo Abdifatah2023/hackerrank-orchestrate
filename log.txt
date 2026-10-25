@@ -133,3 +133,88 @@ branch=feat/skeleton
 repo_root=C:\Users\Owner\Documents\hackerrank-orchestrate-october26
 worktree=main
 parent_agent=none
+
+## [2026-10-25T00:07:17Z] Explain next milestone (evaluation harness)
+
+User Prompt (verbatim, secrets redacted):
+Great. what is the next phase supposed to do. Please briefly explain and don't write any code or files
+
+Agent Response Summary:
+Explained milestone 1 from code/ARCHITECTURE.md: the evaluation harness (scorer plus per-case diff printer) in code/evaluation/main.py, run against dataset/sample_output.csv to record baseline metrics before any audit logic is built. No code or project files were written; only this mandatory log entry was appended.
+
+Actions:
+* Appended to log.txt
+
+Context:
+tool=Claude Code
+model=claude-opus-5-5
+branch=feat/skeleton
+repo_root=C:\Users\Owner\Documents\hackerrank-orchestrate-october26
+worktree=main
+parent_agent=none
+
+## [2026-10-25T00:23:53Z] SESSION START
+
+tool=Claude Code
+model=claude-opus-5-5
+Repo Root: C:\Users\Owner\Documents\hackerrank-orchestrate-october26
+Branch: eval_report
+Worktree: main
+Parent Agent: none
+Language: py
+Time Remaining: not configured
+
+## [2026-10-25T00:25:45Z] Implement milestone 1: evaluation harness
+
+User Prompt (verbatim, secrets redacted):
+Sounds good. Now lets implement the evaluation harness.
+
+Agent Response Summary:
+Built code/evaluation/main.py on branch eval_report. It runs the pipeline on the 32 samples (or scores a --pred CSV) and reports status accuracy plus a confusion matrix, exact-tuple step P/R/F1, per-field accuracy via greedy multi-pass alignment, sequence accuracy, an LCS order score, case-exact rate, and error buckets (missed resource, missing step, extra resource/step, wrong treatment, wrong evidence, ordering, wrong status, missing case). It also prints per-case diffs (--case, --diff) and Markdown tables (--markdown). Moved audit_case into code/audit/pipeline.py so the evaluation script does not import itself as "main". Checks: gold scored against itself is 100% on every metric, and a mutated gold file with one injected error per bucket was reported exactly. Baseline (10/32 status, 0% steps) is recorded in the new code/evaluation/evaluation_report.md; CLAUDE.md is updated. Nothing committed.
+
+Actions:
+* Created code/audit/pipeline.py, code/evaluation/main.py, code/evaluation/evaluation_report.md
+* Edited code/main.py, CLAUDE.md
+* Ran the harness (baseline, gold self-score, mutated scratch file, --markdown) and code/main.py
+* Appended to log.txt
+
+Context:
+tool=Claude Code
+model=claude-opus-5-5
+branch=eval_report
+repo_root=C:\Users\Owner\Documents\hackerrank-orchestrate-october26
+worktree=main
+parent_agent=none
+
+## [2026-10-25T12:10:26Z] SESSION START
+
+tool=Claude Code
+model=claude-opus-5-5
+Repo Root: C:\Users\Owner\Documents\hackerrank-orchestrate-october26
+Branch: eval_report
+Worktree: main
+Parent Agent: none
+Language: py
+Time Remaining: not configured
+
+## [2026-10-25T12:20:38Z] Implement milestone 2: evidence ingestion
+
+User Prompt (verbatim, secrets redacted):
+Now lets move to the next milestone, the ingestion phase. Please undo any faulty changes you made!
+
+Agent Response Summary:
+Checked for faulty changes first: the only edit since the interrupted turn was the required SESSION START log entry, so nothing was undone; the repeated "implement the evaluation harness" line was treated as a leftover because the harness already exists. Built milestone 2: code/audit/observations.py (Observation, Coverage, Activity, Document, EvidenceStore with resource/identifier indexes and audit_at cutoff) and code/audit/ingest/ parsers for SQL (typed inventory + record_json primary/replica tables), all JSON shapes via one walker, the handover text, all six log layouts with trace-context propagation, PDFs via pypdf, and screenshots via a future extraction cache. Discovered that samples prove absence by citing snapshots that omit a record, so ingest also emits snapshot Coverage from SQL tables and JSON collections. Result: gold resources reachable 108/111 (the 3 misses occur in no participant file) and gold citations reachable 75/75. Installed pypdf into .venv (it was missing despite the architecture note) and added code/requirements.txt; added --debug-resource/--debug-identifier to code/main.py and --ingest-coverage to the evaluation harness; updated ARCHITECTURE.md, evaluation_report.md, CLAUDE.md. Nothing committed.
+
+Actions:
+* Created code/audit/observations.py, code/audit/ingest/{__init__,sql,records,logs,documents,activity}.py, code/requirements.txt
+* Edited code/main.py, code/evaluation/main.py, code/ARCHITECTURE.md, code/evaluation/evaluation_report.md, CLAUDE.md
+* Ran pip install pypdf into .venv; profiled evidence formats; viewed two PNG screenshots; ran ingest checks, determinism check, main.py and evaluation regressions
+* Appended to log.txt
+
+Context:
+tool=Claude Code
+model=claude-opus-5-5
+branch=eval_report
+repo_root=C:\Users\Owner\Documents\hackerrank-orchestrate-october26
+worktree=main
+parent_agent=none
