@@ -5,6 +5,7 @@
     python code/evaluation/main.py --diff             # also print a diff for every imperfect case
     python code/evaluation/main.py --case case_12     # diff a single case
     python code/evaluation/main.py --markdown         # metrics as Markdown (for evaluation_report.md)
+    python code/evaluation/main.py --ingest-coverage  # can the evidence store reach every gold resource and citation?
 
 Metrics (all micro-averaged over gold steps unless noted):
   status accuracy   cases whose deletion_status matches
@@ -29,6 +30,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from audit.contract import STEP_FIELDS, case_sort_key  # noqa: E402
 from audit.dataset import SAMPLE_OUTPUT_CSV, SAMPLE_REQUESTS_CSV, load_requests  # noqa: E402
+from audit.ingest import build_store  # noqa: E402
 from audit.pipeline import audit_case  # noqa: E402
 
 TUPLE_FIELDS = ("phase", "operation", "system_id", "resource_id", "state", "evidence_id")
@@ -259,6 +261,43 @@ def print_markdown(report: Report) -> None:
             print(f"| {name} | {count} |")
 
 
+def ingest_coverage(gold: dict[str, Answer]) -> None:
+    """Report gold resources and cited evidence ids the evidence store cannot reach.
+
+    A resource is reachable when some observation, activity, or document names
+    it. A citation is reachable when the cited id is one of those items or a
+    snapshot covering the resource's system (absence proofs).
+    """
+    store = build_store()
+    resources: dict[tuple[str, str], set[str]] = {}
+    citations: dict[tuple[str, str, str], set[str]] = {}
+    for case_id, (_, steps) in gold.items():
+        for s in steps:
+            resources.setdefault((s["system_id"], s["resource_id"]), set()).add(case_id)
+            if s["evidence_id"]:
+                citations.setdefault((s["system_id"], s["resource_id"], s["evidence_id"]), set()).add(case_id)
+
+    def item_ids(system_id: str, resource_id: str) -> set[str]:
+        ids = {getattr(i, "evidence_id", None) or i.activity_id for i in store.for_resource(resource_id)}
+        return ids | {c.evidence_id for c in store.coverage_for(system_id)}
+
+    lost_resources = sorted((r for r in resources if not store.for_resource(r[1])), key=lambda r: r[1])
+    lost_citations = sorted((c for c in citations if c[2] not in item_ids(c[0], c[1])), key=lambda c: c[1])
+    print(
+        f"evidence store: {len(store.observations)} observations, {len(store.coverage)} snapshot coverages, "
+        f"{len(store.activities)} activities, {len(store.documents)} documents "
+        f"({sum(not d.extracted for d in store.documents)} screenshots not yet extracted)"
+    )
+    print(f"gold resources reachable: {len(resources) - len(lost_resources)}/{len(resources)}")
+    for system_id, resource_id in lost_resources:
+        cases = ", ".join(sorted(resources[(system_id, resource_id)], key=case_sort_key))
+        print(f"  - {system_id}/{resource_id}  ({cases})")
+    print(f"gold citations reachable: {len(citations) - len(lost_citations)}/{len(citations)}")
+    for system_id, resource_id, evidence_id in lost_citations:
+        cases = ", ".join(sorted(citations[(system_id, resource_id, evidence_id)], key=case_sort_key))
+        print(f"  - {system_id}/{resource_id} cites {evidence_id}  ({cases})")
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--gold", type=Path, default=SAMPLE_OUTPUT_CSV, help="labelled answers CSV")
@@ -267,9 +306,14 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--diff", action="store_true", help="print a diff for every imperfect case")
     parser.add_argument("--case", action="append", default=[], metavar="CASE_ID", help="print a diff for this case")
     parser.add_argument("--markdown", action="store_true", help="print metrics as Markdown tables")
+    parser.add_argument("--ingest-coverage", action="store_true", help="check the evidence store against gold resources")
     args = parser.parse_args(argv)
+    sys.stdout.reconfigure(encoding="utf-8")
 
     gold = load_answers(args.gold)
+    if args.ingest_coverage:
+        ingest_coverage(gold)
+        return 0
     pred = load_answers(args.pred) if args.pred else predict(args.requests)
     report = score(gold, pred)
 

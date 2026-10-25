@@ -52,6 +52,24 @@ Cases: 32, gold steps: 193, predicted steps: 0
 
 The 31.25% status accuracy is the 10/32 COMPLETE majority-class floor.
 
+### Milestone 2: evidence ingestion
+
+Ingestion does not change predictions yet (the pipeline is still the placeholder), so the scores above are unchanged. Its exit criterion is reachability, checked with `python code/evaluation/main.py --ingest-coverage`:
+
+| Check | Result |
+|---|---|
+| Evidence store | 3,158 observations, 371 snapshot coverages, 4,011 activities, 15 documents (11 screenshots awaiting extraction); every log line parsed (1,972/1,972) |
+| Gold resources found in at least one observation, activity, or document | 108/111 |
+| Gold evidence citations reachable (an item naming the resource, or a snapshot covering its system) | 75/75 |
+
+The 3 unreachable resources (`account_004` in case_04, `audit_record_5569` in case_20, `audit_record_6645` in case_18) do not occur in any participant-facing file, in any format; the two screenshots most likely to hold them were checked by eye. They must be produced by policy rules (every case verifies its account and its retained audit record), not by evidence lookup.
+
+Failures found while building ingestion:
+
+- **Absence is evidence.** The first version only stored rows, so 1 gold citation (case_31 → `evidence_51`) was unreachable: that snapshot proves `account_4857` absent by listing an empty `customer_profiles` collection. Fixed by emitting `Coverage` for JSON snapshot collections as well as SQL tables (74/75 → 75/75).
+- **Phones outside phone fields.** PII scans put phone numbers in `scan_key` / `matched_value`; identifier extraction only looked at fields named `*phone*`. Fixed by recognizing `+`-prefixed numbers in any field.
+- **Missing dependency.** `pypdf` was assumed installed but was absent from both interpreters; it is now pinned in `code/requirements.txt`.
+
 ## Custom evaluation cases
 
 To be added (milestone 9). Planned: non-English non-deletion request, historical-email-only request, post-`audit_at` evidence that must be ignored, replica-only residue, look-alike decoy email.
