@@ -14,14 +14,9 @@ import argparse
 import sys
 from pathlib import Path
 
-from audit.contract import COMPLETE
-from audit.dataset import OUTPUT_CSV, REQUESTS_CSV, SAMPLE_REQUESTS_CSV, Request, load_citable_ids, load_requests
-from audit.emit import CaseResult, validate_output, write_output
-
-
-def audit_case(request: Request) -> CaseResult:
-    # Placeholder until the pipeline in code/ARCHITECTURE.md §3 is built.
-    return CaseResult(case_id=request.case_id, deletion_status=COMPLETE, steps=[])
+from audit.dataset import OUTPUT_CSV, REQUESTS_CSV, SAMPLE_REQUESTS_CSV, load_citable_ids, load_requests
+from audit.emit import validate_output, write_output
+from audit.pipeline import audit_case
 
 
 def main(argv: list[str] | None = None) -> int:
