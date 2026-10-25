@@ -344,3 +344,26 @@ branch=feat/audit-pipeline
 repo_root=C:\Users\Owner\Documents\hackerrank-orchestrate-october26
 worktree=main
 parent_agent=none
+
+## [2026-10-25T13:59:58Z] Build Streamlit per-case deletion audit report app
+
+User Prompt (verbatim, secrets redacted):
+On a branch separate from 'main', build a Streamlit app that shows a per-case deletion audit report for the "Ghost Data Still Exists" project. Work in a new file, `app/streamlit_app.py`, and do not modify the existing pipeline, `output.csv`, or anything in `dataset/`. [Full spec pasted: DATA SOURCES (output.csv, deletion_requests.csv, evidence_files.csv, system_activity.csv); PAGE LAYOUT (sidebar search/status filter/PII mask toggle, header with status badge and timestamps, Plotly timeline with request/deletion/SYNC_RECORD/RESTORE_BACKUP markers, steps grouped by phase with evidence links, summary cards, overview tab with status counts and bar chart); RULES (PII masked by default, NOT_APPLICABLE message, graceful errors, st.cache_data, single file plus requirements.txt, run with streamlit run app/streamlit_app.py); DONE WHEN (every case renders, timeline and steps match the CSVs, works at phone width with a collapsing sidebar).]
+
+Agent Response Summary:
+Created branch feat/streamlit-report from main and added app/streamlit_app.py plus app/requirements.txt (streamlit, pandas, plotly); nothing in the pipeline, output.csv, or dataset/ was touched. Case activity is linked through step resource_ids, resources named in activity details, and the subject's email/user_id; the deletion marker is the first linked account_service DELETE_RECORD, with reported_at as the fallback reference for flagging later sync/restore events. Verified with Streamlit AppTest that all 518 cases render without errors, step tables and linked activity match the CSVs, masked mode never shows raw emails, and malformed/missing inputs produce in-page errors; checked phone (400px) and desktop layouts in Chrome and fixed overlapping milestone labels, stacked metric cards, clipped audit line, legend overlap, and a NaN-truthiness bug in steps_error.
+
+Actions:
+* git switch -c feat/streamlit-report; created app/streamlit_app.py, app/requirements.txt
+* pip install streamlit pandas plotly into .venv
+* Ran AppTest checks over all 518 cases and a malformed-data fixture (scratch dir); visual check via Claude in Chrome on localhost:8599
+* git commit 3d1933a (not pushed)
+* Appended to log.txt
+
+Context:
+tool=Claude Code
+model=claude-opus-5-5
+branch=feat/streamlit-report
+repo_root=C:\Users\Owner\Documents\hackerrank-orchestrate-october26
+worktree=main
+parent_agent=none
