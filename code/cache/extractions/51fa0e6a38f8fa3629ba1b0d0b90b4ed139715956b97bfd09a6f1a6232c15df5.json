@@ -1,0 +1,23 @@
+{
+  "source_file": "evidence/images/marketing_profile_console.png",
+  "extractor": {
+    "provider": "anthropic",
+    "model": "claude-opus-5-5",
+    "method": "one-time vision transcription during development (Claude Code session); regenerate with code/extract_media.py"
+  },
+  "text": "Audience Operations. Soo-jin Park (Live). marketing_001 - sj.park@naver.com - +82 10-5837-9451. Market South Korea, language Korean, email opt-in Yes, SMS opt-in No, last refreshed 15 Sep 2026 23:40 UTC. Profile activity: 23:40 product-category update; 23:38 campaign eligibility check (Autumn offers eligible); 23:35 profile refresh, live profile fields updated; 23:32 audience evaluation Returning customers East Asia. Audience membership: Returning customers East Asia; segments repeat customer, home & lifestyle, mobile shopper; last campaign Autumn offers; open rate 32.4%; click rate 6.8%. Activity: profile refreshed from live data.",
+  "records": [
+    {
+      "resource_ref": "marketing_001",
+      "system_id": "marketing_platform",
+      "observed_at": "2026-09-15T23:40:00Z",
+      "fields": {
+        "full_name": "Soo-jin Park",
+        "email": "sj.park@naver.com",
+        "phone": "+82 10-5837-9451",
+        "email_opt_in": true,
+        "status": "Live"
+      }
+    }
+  ]
+}

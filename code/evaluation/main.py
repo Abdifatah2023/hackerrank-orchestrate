@@ -6,6 +6,7 @@
     python code/evaluation/main.py --case case_12     # diff a single case
     python code/evaluation/main.py --markdown         # metrics as Markdown (for evaluation_report.md)
     python code/evaluation/main.py --ingest-coverage  # can the evidence store reach every gold resource and citation?
+    python code/evaluation/main.py --custom           # hand-built variant cases (custom_cases.py)
 
 Metrics (all micro-averaged over gold steps unless noted):
   status accuracy   cases whose deletion_status matches
@@ -29,9 +30,12 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from audit.contract import STEP_FIELDS, case_sort_key  # noqa: E402
-from audit.dataset import SAMPLE_OUTPUT_CSV, SAMPLE_REQUESTS_CSV, load_requests  # noqa: E402
+from dataclasses import replace  # noqa: E402
+
+from audit.dataset import SAMPLE_OUTPUT_CSV, SAMPLE_REQUESTS_CSV, load_requests, parse_time  # noqa: E402
 from audit.ingest import build_store  # noqa: E402
-from audit.pipeline import audit_case  # noqa: E402
+from audit.pipeline import audit_requests, run_audits  # noqa: E402
+from custom_cases import CUSTOM_CASES  # noqa: E402
 
 TUPLE_FIELDS = ("phase", "operation", "system_id", "resource_id", "state", "evidence_id")
 
@@ -60,7 +64,7 @@ def load_answers(path: Path) -> dict[str, Answer]:
 
 
 def predict(requests_path: Path) -> dict[str, Answer]:
-    results = (audit_case(r) for r in load_requests(requests_path))
+    results = audit_requests(load_requests(requests_path))
     return {r.case_id: (r.deletion_status, r.steps) for r in results}
 
 
@@ -298,6 +302,51 @@ def ingest_coverage(gold: dict[str, Answer]) -> None:
         print(f"  - {system_id}/{resource_id} cites {evidence_id}  ({cases})")
 
 
+def run_custom(gold: dict[str, Answer], verbose: bool) -> int:
+    """Run each custom variant in place of its base case and check its expectation."""
+    store = build_store()
+    requests = {r.case_id: r for r in load_requests(SAMPLE_REQUESTS_CSV)}
+    passed = 0
+    for case in CUSTOM_CASES:
+        base = requests[case["base"]]
+        changes = {k: parse_time(v) if k.endswith("_at") else v for k, v in case["changes"].items()}
+        variant = replace(base, **changes)
+        result = run_audits([variant])[0].plan.result
+        answer = (result.deletion_status, result.steps)
+
+        failures = []
+        expected = gold[base.case_id] if case["expect"] == "gold" else case["expect"]
+        if isinstance(expected, dict):
+            expected = (expected["status"], expected["steps"])
+        if expected is not None:
+            cs = score_case(case["id"], expected, answer)
+            if not cs.perfect:
+                failures.append(f"differs from expected ({cs.exact_steps}/{len(expected[1])} steps)")
+                failures += cs.diff
+        cited = {s["evidence_id"] for s in result.steps if s["evidence_id"]}
+        for check in case.get("checks", []):
+            name, ids = (check, []) if isinstance(check, str) else check
+            if name == "no_late_evidence":
+                late = sorted(e for e in cited if e in store.files and store.files[e].captured_at > variant.audit_at)
+                if late:
+                    failures.append(f"cites evidence captured after audit_at: {late}")
+            elif name == "never_cites" and (hit := sorted(cited & set(ids))):
+                failures.append(f"cites forbidden evidence {hit}")
+            elif name == "never_mentions" and (hit := sorted({s["resource_id"] for s in result.steps} & set(ids))):
+                failures.append(f"mentions {hit}")
+
+        passed += not failures
+        print(f"{'PASS' if not failures else 'FAIL'}  {case['id']}  ({case['base']}: {', '.join(case['changes'])})")
+        print(f"      -> {result.deletion_status}, {len(result.steps)} step(s)")
+        for line in failures:
+            print(f"      {line}")
+        if verbose:
+            for s in result.steps:
+                print(f"        {s['step_no']:2} {s['phase']:12} {s['operation']:26} {s['system_id']}/{s['resource_id']} {s['evidence_id']}")
+    print(f"\ncustom cases passed: {passed}/{len(CUSTOM_CASES)}")
+    return 0 if passed == len(CUSTOM_CASES) else 1
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--gold", type=Path, default=SAMPLE_OUTPUT_CSV, help="labelled answers CSV")
@@ -307,6 +356,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--case", action="append", default=[], metavar="CASE_ID", help="print a diff for this case")
     parser.add_argument("--markdown", action="store_true", help="print metrics as Markdown tables")
     parser.add_argument("--ingest-coverage", action="store_true", help="check the evidence store against gold resources")
+    parser.add_argument("--custom", action="store_true", help="run the hand-built cases in custom_cases.py")
     args = parser.parse_args(argv)
     sys.stdout.reconfigure(encoding="utf-8")
 
@@ -314,6 +364,8 @@ def main(argv: list[str] | None = None) -> int:
     if args.ingest_coverage:
         ingest_coverage(gold)
         return 0
+    if args.custom:
+        return run_custom(gold, verbose=args.diff)
     pred = load_answers(args.pred) if args.pred else predict(args.requests)
     report = score(gold, pred)
 

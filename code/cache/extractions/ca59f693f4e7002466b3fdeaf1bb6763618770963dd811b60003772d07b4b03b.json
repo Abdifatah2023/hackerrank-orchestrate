@@ -1,0 +1,65 @@
+{
+  "source_file": "evidence/images/security_audit_explorer_20260905.png",
+  "extractor": {
+    "provider": "anthropic",
+    "model": "claude-opus-5-5",
+    "method": "one-time vision transcription during development (Claude Code session); regenerate with code/extract_media.py"
+  },
+  "text": "Sentinel / Account events, 6 signed events. Subject filter user_03, 18-26 Aug 2026 UTC. Events: 25 Aug 04:03 account closure recorded (account lifecycle, automated workflow, valid) audit_record_003; 25 Aug 03:21 session revoked audit_record_002; 24 Aug 16:14 recovery challenge completed audit_record_001; 22 Aug 11:27 email change confirmed audit_record_006; 20 Aug 09:42 login from new device audit_record_005; 18 Aug 14:05 password changed audit_record_004. Integrity failures 0, partition 2026-Q3. Raw event audit_record_003: event_type account_closure_recorded, subject user_03, actor automated account workflow, recorded_at 2026-08-25T04:03:00Z, signature valid, journal 2026-Q3.",
+  "records": [
+    {
+      "resource_ref": "audit_record_003",
+      "system_id": "security_service",
+      "fields": {
+        "subject_reference": "user_03",
+        "event_name": "account_closure_recorded",
+        "integrity_check": "valid"
+      }
+    },
+    {
+      "resource_ref": "audit_record_002",
+      "system_id": "security_service",
+      "fields": {
+        "subject_reference": "user_03",
+        "event_name": "session_revoked",
+        "integrity_check": "valid"
+      }
+    },
+    {
+      "resource_ref": "audit_record_001",
+      "system_id": "security_service",
+      "fields": {
+        "subject_reference": "user_03",
+        "event_name": "recovery_challenge_completed",
+        "integrity_check": "valid"
+      }
+    },
+    {
+      "resource_ref": "audit_record_006",
+      "system_id": "security_service",
+      "fields": {
+        "subject_reference": "user_03",
+        "event_name": "email_change_confirmed",
+        "integrity_check": "valid"
+      }
+    },
+    {
+      "resource_ref": "audit_record_005",
+      "system_id": "security_service",
+      "fields": {
+        "subject_reference": "user_03",
+        "event_name": "login_from_new_device",
+        "integrity_check": "valid"
+      }
+    },
+    {
+      "resource_ref": "audit_record_004",
+      "system_id": "security_service",
+      "fields": {
+        "subject_reference": "user_03",
+        "event_name": "password_changed",
+        "integrity_check": "valid"
+      }
+    }
+  ]
+}

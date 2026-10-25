@@ -1,0 +1,21 @@
+{
+  "source_file": "evidence/images/object_storage_browser_20260213.png",
+  "extractor": {
+    "provider": "anthropic",
+    "model": "claude-opus-5-5",
+    "method": "one-time vision transcription during development (Claude Code session); regenerate with code/extract_media.py"
+  },
+  "text": "Nimbus Object Storage / northstar-customer-data, 8 objects, eu-west-1 / support-attachments / 2026 / 02, captured 13 Feb 2026 08:00 UTC. Objects: delivery_confirmation_19.pdf 684 KB modified 12 Feb 18:42 v3; delivery_confirmation_20.pdf 712 KB 11 Feb 14:17; return_label_4821.pdf; return_label_4876.pdf; invoice_NS-10493.pdf; parcel_damage_7713.jpg; customer_export_2026-02-10.zip; customer_export_2026-02-12.zip. delivery_confirmation_19.pdf detail: version v3, application/pdf, AES-256, uploader support-service, modified 12 Feb 2026 18:42 UTC; v1 object created 12 Feb 18:38, v2 upload complete 18:39, v3 metadata update 18:42.",
+  "records": [
+    {
+      "resource_ref": "delivery_confirmation_19.pdf",
+      "system_id": "object_storage",
+      "observed_at": "2026-02-13T08:00:00Z",
+      "fields": {
+        "file_name": "delivery_confirmation_19.pdf",
+        "uploaded_by": "support-service",
+        "storage_class": "Standard"
+      }
+    }
+  ]
+}

@@ -1,0 +1,45 @@
+{
+  "source_file": "evidence/images/backup_restore_console_20260429.png",
+  "extractor": {
+    "provider": "anthropic",
+    "model": "claude-opus-5-5",
+    "method": "one-time vision transcription during development (Claude Code session); regenerate with code/extract_media.py"
+  },
+  "text": "Vault Recovery Manager / Recovery Manager. Customer-platform archives (Healthy), Northstar Production weekly snapshots. Archives: backup_9291 bluepeakco@outlook.com ap-southeast-1 26 Apr 02:00 102.3 GB; backup_9288 miller.logistics@company.com us-west-2 67.1 GB; backup_9287 areed1433@gmail.com eu-west-1 84.7 GB; backup_9286 summit-retail@company.com us-east-1 91.4 GB; all AES-256, tier Archive. backup_9287 detail: account areed1433@gmail.com, path s3://northstar-backups/customer-platform/weekly/segment-42-20260426.tar.zst, region eu-west-1, created 26 Apr 2026 02:00 UTC, checksum verified, last drill 29 Mar 2026, retention end 26 Jul 2026. No restore block or legal hold is shown. Activity: 25 Apr backup_9286 restored completed; 24 Apr backup_9281 restored completed; 22 Apr checksum verification completed.",
+  "records": [
+    {
+      "resource_ref": "backup_9287",
+      "system_id": "backup_service",
+      "fields": {
+        "customer_email": "areed1433@gmail.com",
+        "archive_key": "s3://northstar-backups/customer-platform/weekly/segment-42-20260426.tar.zst",
+        "restore_allowed": true,
+        "retention_end": "2026-07-26"
+      }
+    },
+    {
+      "resource_ref": "backup_9291",
+      "system_id": "backup_service",
+      "fields": {
+        "customer_email": "bluepeakco@outlook.com",
+        "restore_allowed": true
+      }
+    },
+    {
+      "resource_ref": "backup_9288",
+      "system_id": "backup_service",
+      "fields": {
+        "customer_email": "miller.logistics@company.com",
+        "restore_allowed": true
+      }
+    },
+    {
+      "resource_ref": "backup_9286",
+      "system_id": "backup_service",
+      "fields": {
+        "customer_email": "summit-retail@company.com",
+        "restore_allowed": true
+      }
+    }
+  ]
+}

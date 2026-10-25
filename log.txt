@@ -218,3 +218,78 @@ branch=eval_report
 repo_root=C:\Users\Owner\Documents\hackerrank-orchestrate-october26
 worktree=main
 parent_agent=none
+
+## [2026-10-25T12:53:59Z] Commit milestone 2, branch, implement milestones 3-10
+
+User Prompt (verbatim, secrets redacted):
+commit and push the code to the current branch, eval_report, and then create a new branch where you can implement the rest of the milestones in one setting!
+
+Agent Response Summary:
+Committed milestone 2 (e7f2b23) and pushed eval_report, then created feat/audit-pipeline and implemented milestones 3-10: identity resolution (current + audit-log history + email hashes), multilingual intent rules (exactly the 10 non-deletion requests), discovery (direct identifier links over all evidence, burst-based account and anonymized-record assignment across all cases), state at audit_at (latest reading per copy, readings only after reported_at, snapshot absence proofs), policy from deletion_rules.csv, planner, optional Claude client with usage ledger, screenshot extraction cache plus alias resolution, six custom cases, and final reports/README. Sample results: status 100%, step F1 98.69%, case exact 28/32 (3 misses are ids absent from all participant data, 1 is an inherently ambiguous burst account); custom cases 6/6; full 518-row output valid with 0 model calls. No API key was available, so the 11 screenshots were transcribed by the coding agent viewing each image; this is disclosed in usage_report.md with token estimates, and code/extract_media.py regenerates the cache via the API. New branch work is not committed.
+
+Actions:
+* git commit + git push origin eval_report; git checkout -b feat/audit-pipeline
+* Created code/audit/{identity,intent,discovery,state,policy,planner,llm}.py, code/extract_media.py, code/evaluation/custom_cases.py, code/evaluation/usage_report.md, code/cache/extractions/*.json (11)
+* Edited code/audit/{pipeline,observations}.py, code/audit/ingest/{__init__,documents,sql}.py, code/main.py, code/evaluation/main.py, code/evaluation/evaluation_report.md, code/ARCHITECTURE.md, code/requirements.txt, README.md, CLAUDE.md
+* Viewed 9 screenshot PNGs; loaded the claude-api skill; ran evaluation, custom cases, ingest coverage, full run, and a trial code.zip packaging into the scratchpad
+* Appended to log.txt
+
+Context:
+tool=Claude Code
+model=claude-opus-5-5
+branch=feat/audit-pipeline
+repo_root=C:\Users\Owner\Documents\hackerrank-orchestrate-october26
+worktree=main
+parent_agent=none
+
+## [2026-10-25T13:12:02Z] Fix stale placeholder docstring in code/main.py
+
+User Prompt (verbatim, secrets redacted):
+code/main.py’s docstring still says the pipeline is a placeholder, but the root output.csv has 519 lines and the evaluation report shows a working pipeline. The docstring is probably stale and worth updating before anyone builds on it.
+
+Agent Response Summary:
+Confirmed the module docstring was stale (left from milestone 2) and replaced it with an accurate description of the full pipeline, validation exit code, model-usage behaviour, and the --explain/--debug flags. Grepped code/ for other "placeholder" mentions (none left) and re-ran code/main.py (output valid). Also wrapped the README's bare submission URL in angle brackets to clear a lint warning while keeping it clickable.
+
+Actions:
+* Edited code/main.py docstring and README.md submission line
+* Ran grep for "placeholder" and python code/main.py
+* Appended to log.txt
+
+Context:
+tool=Claude Code
+model=claude-opus-5-5
+branch=feat/audit-pipeline
+repo_root=C:\Users\Owner\Documents\hackerrank-orchestrate-october26
+worktree=main
+parent_agent=none
+
+## [2026-10-25T13:18:57Z] SESSION START
+
+tool=Claude Code
+model=claude-opus-5-5
+Repo Root: C:\Users\Owner\Documents\hackerrank-orchestrate-october26
+Branch: feat/audit-pipeline
+Worktree: main
+Parent Agent: none
+Language: py
+Time Remaining: not configured
+
+## [2026-10-25T13:18:57Z] Commit and push feat/audit-pipeline
+
+User Prompt (verbatim, secrets redacted):
+Commit and push
+
+Agent Response Summary:
+Committed all milestone 3-10 work on feat/audit-pipeline (pipeline modules, screenshot extraction cache, custom cases, reports, README, docstring fix, regenerated output.csv and log.txt) and pushed the branch to origin. Verified beforehand that no .env or other secrets were present and that output.csv still validates.
+
+Actions:
+* git add -A; git commit; git push -u origin feat/audit-pipeline
+* Appended to log.txt
+
+Context:
+tool=Claude Code
+model=claude-opus-5-5
+branch=feat/audit-pipeline
+repo_root=C:\Users\Owner\Documents\hackerrank-orchestrate-october26
+worktree=main
+parent_agent=none

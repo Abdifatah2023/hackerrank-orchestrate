@@ -1,0 +1,21 @@
+{
+  "source_file": "evidence/images/analytics_profile_view_20260713.png",
+  "extractor": {
+    "provider": "anthropic",
+    "model": "claude-opus-5-5",
+    "method": "one-time vision transcription during development (Claude Code session); regenerate with code/extract_media.py"
+  },
+  "text": "Pulse Analytics / Users. Omar Darwish, last 90 days. user_20 - analytics_7438 - darwish.omar@icloud.com. Sessions 12, products viewed 19, completed orders 2, revenue USD 167.42, mobile/desktop 67%/33%, acquisition organic search. Event timeline 13 Jul: 14:22 order completed ceramic coffee set USD 84.21; 14:20 checkout started; 14:17 product viewed; 14:16 added to cart; 14:12 product viewed stoneware mug. Profile attributes: market AE, audience returning shopper, last activity 13 Jul 2026 14:22 UTC, first seen 21 Apr 2026 09:14 UTC.",
+  "records": [
+    {
+      "resource_ref": "analytics_7438",
+      "system_id": "analytics_platform",
+      "fields": {
+        "user_id": "user_20",
+        "full_name": "Omar Darwish",
+        "email": "darwish.omar@icloud.com",
+        "audience_cohort": "returning_shopper"
+      }
+    }
+  ]
+}

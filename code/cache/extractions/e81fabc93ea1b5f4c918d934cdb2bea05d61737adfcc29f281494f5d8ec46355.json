@@ -1,0 +1,33 @@
+{
+  "source_file": "evidence/images/connector_management_console_20260807.png",
+  "extractor": {
+    "provider": "anthropic",
+    "model": "claude-opus-5-5",
+    "method": "one-time vision transcription during development (Claude Code session); regenerate with code/extract_media.py"
+  },
+  "text": "BridgeOps / Connections. 12 connectors, PRODUCTION eu-west, 07 Aug 2026 08:00 UTC. Topology: data_flow_1121 -> customer_analytics_warehouse, selector jain.aditi@gmail.com, continuous, 1,284 events/hour, last contact 07:59:42; data_flow_9846 -> customer_analytics_warehouse, selector lucia-torres@gmail.com, continuous, 842/h, 07:59:36; Order notifications -> notification_service, order events; Delivery tracking -> logistics_warehouse, shipment events. data_flow_1121 detail: status Healthy, owner Data Platform, sync mode continuous sync, last response 200 OK. Activity: 07:59:42 124 events delivered; 07:58:10 checkpoint committed; 07:56:44 18 events retried; 07:55:02 destination acknowledged batch.",
+  "records": [
+    {
+      "resource_ref": "data_flow_1121",
+      "system_id": "integration_service",
+      "observed_at": "2026-08-07T07:59:42Z",
+      "fields": {
+        "customer_email": "jain.aditi@gmail.com",
+        "destination": "customer_analytics_warehouse",
+        "enabled": true,
+        "last_delivery_status": "delivered"
+      }
+    },
+    {
+      "resource_ref": "data_flow_9846",
+      "system_id": "integration_service",
+      "observed_at": "2026-08-07T07:59:36Z",
+      "fields": {
+        "customer_email": "lucia-torres@gmail.com",
+        "destination": "customer_analytics_warehouse",
+        "enabled": true,
+        "last_delivery_status": "delivered"
+      }
+    }
+  ]
+}

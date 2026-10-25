@@ -1,1 +1,3 @@
 pypdf>=6.0
+# Optional, only for code/extract_media.py and the intent model fallback:
+# anthropic
