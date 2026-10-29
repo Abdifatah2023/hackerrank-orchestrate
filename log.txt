@@ -367,3 +367,55 @@ branch=feat/streamlit-report
 repo_root=C:\Users\Owner\Documents\hackerrank-orchestrate-october26
 worktree=main
 parent_agent=none
+
+## [2026-10-28T18:09:59Z] SESSION START
+
+tool=Claude Code
+model=claude-opus-5-5
+Repo Root: C:\Users\Owner\Documents\hackerrank-orchestrate-october26
+Branch: main
+Worktree: main
+Parent Agent: none
+Language: py
+Time Remaining: not configured
+
+## [2026-10-28T18:09:59Z] /init: review and refine existing CLAUDE.md
+
+User Prompt (verbatim, secrets redacted):
+/init — Please analyze this codebase and create a CLAUDE.md file, which will be given to future instances of Claude Code to operate in this repository. [Standard /init instructions: commands, high-level architecture, suggest improvements if CLAUDE.md exists, include Cursor/Copilot rules and README essentials, required header prefix.]
+
+Agent Response Summary:
+CLAUDE.md already existed and was checked against the code (CLI flags in code/main.py and code/evaluation/main.py, code/requirements.txt, ARCHITECTURE.md sections, llm.py model ID, README layout); it was accurate, so only targeted fixes were made instead of a rewrite. Fixed two ambiguous usage_report.md references to code/evaluation/usage_report.md, documented the --requests/--output and --gold/--requests flags, and noted that log.txt is now gitignored but remains the chat_transcript deliverable. No Cursor, Copilot, Codex, or Gemini configs exist.
+
+Actions:
+* Read log.txt, CLAUDE.md; grepped code/main.py, code/evaluation/main.py, code/ARCHITECTURE.md, code/audit/llm.py, README.md
+* Edited CLAUDE.md (5 small edits)
+* Appended to log.txt
+
+Context:
+tool=Claude Code
+model=claude-opus-5-5
+branch=main
+repo_root=C:\Users\Owner\Documents\hackerrank-orchestrate-october26
+worktree=main
+parent_agent=none
+
+## [2026-10-29T16:31:08Z] Advise on deploying the Streamlit viewer to Vercel
+
+User Prompt (verbatim, secrets redacted):
+I would like to deploy this app to Vercel. Please provide instructions on what changes to make.
+
+Agent Response Summary:
+Inspected app/streamlit_app.py (reads output.csv and five dataset/ CSVs, serves evidence files as downloads) and app/requirements.txt. Explained that Vercel cannot host Streamlit, which needs a long-running server with a persistent WebSocket, while Vercel's Python runtime runs short-lived serverless functions. Recommended Streamlit Community Cloud (no code changes) and described what a Vercel-only route would take: a static rebuild of the viewer from pre-exported JSON. Flagged that PII masking is UI-only, so any deployment should be access-restricted. No files changed.
+
+Actions:
+* Read app/streamlit_app.py, app/requirements.txt; checked tracked dataset files and git remote
+* Appended to log.txt
+
+Context:
+tool=Claude Code
+model=claude-opus-5-5
+branch=main
+repo_root=C:\Users\Owner\Documents\hackerrank-orchestrate-october26
+worktree=main
+parent_agent=none

@@ -3,3 +3,5 @@ __pycache__/
 .env
 code.zip
 sample_predictions.csv
+log.txt
+agent_trace_instructions.md
